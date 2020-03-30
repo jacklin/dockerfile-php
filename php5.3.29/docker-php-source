@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+dir=/usr/src/php
+
+if [[ $2 ]]; then
+	openssl_dir=$2
+else
+	openssl_dir=/usr/src/openssl_dir
+fi
+usage() {
+	echo "usage: $0 COMMAND"
+	echo
+	echo "Manage php source tarball lifecycle."
+	echo
+	echo "Commands:"
+	echo "   extract  extract php source tarball into directory $dir if not already done."
+	echo "   delete   delete extracted php source located into $dir if not already done."
+	echo
+}
+
+case "$1" in
+	extract)
+		mkdir -p "$dir"
+		if [ ! -f "$dir/.docker-extracted" ]; then
+			tar -Jxf /usr/src/php.tar.xz -C "$dir" --strip-components=1
+			touch "$dir/.docker-extracted"
+		fi
+		;;
+	openssl)
+		mkdir -p $openssl_dir
+		if [[ ! -f "$openssl_dir/.docker-extracted" ]]; then
+			tar -zxvf /usr/src/openssl.tar.gz -C "$openssl_dir" --strip-components=1
+			touch "$openssl_dir/.docker-extracted"
+		fi
+		;;
+	delete)
+		rm -rf "$dir"
+		rm -rf "$openssl_dir"
+		;;
+
+	*)
+		usage
+		exit 1
+		;;
+esac
