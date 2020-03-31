@@ -257,6 +257,7 @@ RUN set -eux \
                 echo; \
                 echo '[www]'; \
                 echo 'listen = 9000'; \
-        } | tee php-fpm.d/zz-docker.conf
+        } | tee php-fpm.d/zz-docker.conf \
+        && apk del --no-network .phpize-deps
 
 CMD ["php-fpm"]

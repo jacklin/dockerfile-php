@@ -1,5 +1,5 @@
 #使用国内网易镜像可以加快构建速度
-FROM jacklin/php:7.1.2-fpm-alpine
+FROM jacklin/php:5.3.29-fpm-alpine
 
 MAINTAINER jacklin@shouyiren.net
 
@@ -9,7 +9,7 @@ ENV PM_MAX_CHILDREN=1000 \
 	PM_MAX_SPARE_SERVERS=25 \
 	REQUEST_TERMINATE_TIMEOUT=30 \
 	RLIMIT_FILES=10240 \
-	PHP_FPM_PORT=7120 \
+	PHP_FPM_PORT=5329 \
 	PHP_FPM_SOCK='/dev/shm/php-cgi.sock' \
 	WEB_DOCUMENT_ROOT=/app \
 	WEB_SERVER_NAME='127.0.0.1' \
@@ -29,8 +29,8 @@ COPY conf/ /opt/docker/
 RUN set -x \
 	&& sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
 	# 添加用户nginx 用于运行服务
-	&& addgroup -g 101 -S nginx \
-    && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
+	&& addgroup -g 102 -S nginx \
+    && adduser -S -D -H -u 102 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
     # Install nginx
     && apk add --no-cache --virtual .build-deps \
         nginx 
