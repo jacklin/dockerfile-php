@@ -124,8 +124,8 @@ RUN set -eux \
 		&& OPENSSL_VERSION="1.0.1u" \
 		&& cd /tmp \
 		&& mkdir openssl \
-		&& curl -sL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz \
-		&& tar -xzf openssl.tar.gz -C openssl --strip-components=1 \
+		&& curl -sL "https://www.openssl.org/source/old/1.0.1/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz \
+		&& tar -xf openssl.tar.gz -C openssl --strip-components=1 \
 		&& cd /tmp/openssl \
 		&& ./config \
 		&& make -j "$(nproc)" \
@@ -206,7 +206,8 @@ RUN set -eux \
                 --with-jpeg-dir=/usr/include \
                 --with-png-dir=/usr/include \
         && docker-php-ext-configure mysqli --with-mysqli=mysqlnd \
-        && docker-php-ext-install gd bcmath zip iconv mcrypt pdo pdo_mysql mysqli \
+        && docker-php-ext-configure mysql --with-mysql=mysqlnd \
+        && docker-php-ext-install gd bcmath zip iconv mcrypt pdo pdo_mysql mysql mysqli \
 #redis属于pecl扩展，需要使用pecl命令来安装，同时需要添加依赖的库
         && apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \
         && pecl install redis-4.1.1 \
