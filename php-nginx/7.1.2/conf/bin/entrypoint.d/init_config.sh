@@ -57,14 +57,14 @@ sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_CONNECTIONES>#$WORKER_CONNECTIONES#" \
 /opt/docker/nginx/nginx.conf > /etc/nginx/nginx.conf
 
-if [[ ! -n "${SERVER_PORT}" ]]; then
- 	SERVER_PORT="80 default"
+if [[ ! -n "${WEB_SERVER_PORT}" ]]; then
+ 	WEB_SERVER_PORT="80 default"
 fi
 if [[ ! -n $WEB_DOCUMENT_ROOT ]]; then
  	WEB_DOCUMENT_ROOT="/app"
 fi
 
-if [[ ! -n $WEB_SERVER_NAME ]];then
+if [[ ! -n "${WEB_SERVER_NAME}" ]];then
 	WEB_SERVER_NAME="127.0.0.1"
 fi
 if [[ ! -n $SSL_CERTIFICATE ]];then
@@ -77,7 +77,7 @@ if [[ ! -n $DENY_SUFFIX_FILES ]]; then
  	DENY_SUFFIX_FILES="null"
 fi
 # 修改vhosts配置
-sed -e "s#<SERVER_PORT>#$SERVER_PORT#" \
+sed -e "s#<WEB_SERVER_PORT>#$WEB_SERVER_PORT#" \
 -e "s#<WEB_DOCUMENT_ROOT>#$WEB_DOCUMENT_ROOT#" \
 -e "s#<WEB_SERVER_NAME>#$WEB_SERVER_NAME#" \
 -e "s#<PHP_FPM_PORT>#$PHP_FPM_PORT#" \
