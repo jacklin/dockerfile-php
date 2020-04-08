@@ -57,7 +57,7 @@ sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_CONNECTIONES>#$WORKER_CONNECTIONES#" \
 /opt/docker/nginx/nginx.conf > /etc/nginx/nginx.conf
 
-if [[ ! -n $SERVER_PORT ]]; then
+if [[ ! -n "${SERVER_PORT}" ]]; then
  	SERVER_PORT="80 default"
 fi
 if [[ ! -n $WEB_DOCUMENT_ROOT ]]; then
