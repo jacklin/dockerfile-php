@@ -87,5 +87,7 @@ sed -e "s#<WEB_SERVER_PORT>#$WEB_SERVER_PORT#" \
 -e "s#<DENY_SUFFIX_FILES>#$DENY_SUFFIX_FILES#" \
 /opt/docker/nginx/vhosts/server.conf > /etc/nginx/conf.d/server.conf
 #添加其它vhost配置
-alias cp='cp -f'
-cp /opt/docker/nginx/vhosts/other/*.conf /etc/nginx/conf.d/
+if [[ -d "/opt/docker/nginx/vhosts/other/" ]]; then
+	alias cp='cp -f'
+	cp /opt/docker/nginx/vhosts/other/*.conf /etc/nginx/conf.d/
+fi
