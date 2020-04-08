@@ -16,6 +16,7 @@ ENV PM_MAX_CHILDREN=1000 \
 	SSL_CERTIFICATE=/opt/docker/nginx/ssl/common.crt \
 	SSL_CERTIFICATE_KEY=/opt/docker/nginx/ssl/common.pem \
 	SERVICE_NGINX_OPTS='' \
+	SERVER_PORT="80 default" \
 	WORKER_PROCESSES=4 \
 	WORKER_CPU_AFFINITY='0001 0010 0100 1000' \
 	KEEPALIVE_TIMEOUT=0 \
