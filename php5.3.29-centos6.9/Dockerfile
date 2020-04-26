@@ -6,6 +6,9 @@ MAINTAINER jacklin@shouyiren.net
 #定义环境变量
 ENV TIME_ZONE Asiz/Shanghai
 ENV RUN_ENV remote
+ENV PHP_VERSION 5.3.29
+
+
 ENV PHPIZE_DEPS \
                 autoconf \
                 dpkg-dev dpkg \
@@ -22,14 +25,8 @@ ENV PHPIZE_DEPS \
 ENV PHP_INI_DIR /usr/local/etc/php
 
 RUN set -eux \
-        && sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-        && apk add --no-cache \
-                ca-certificates \
-                curl \
-                tar \
-                xz \
-        && addgroup -g 82 -S www-data \
-        && adduser -u 82 -D -S -G www-data www-data \
+        && groupadd -g 82 www-data\
+        && useradd -g 82 -u 82  www-data \
         && mkdir -p "$PHP_INI_DIR/conf.d" \
         && [ ! -d /var/www/html ] \
         && mkdir -p /var/www/html \
@@ -61,83 +58,21 @@ ENV PHP_EXTRA_CONFIGURE_ARGS \
 --enable-pcntl \
 --enable-sockets
 
-
-ENV PHP_CFLAGS="-fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
-ENV PHP_CPPFLAGS="$PHP_CFLAGS"
-ENV PHP_LDFLAGS="-Wl,-O1 -Wl,--hash-style=both -pie"
-
-ENV GPG_KEYS 7267B52D FC9C83D7
-
-ENV PHP_VERSION 5.3.29
-ENV PHP_URL="https://www.php.net/get/php-5.3.29.tar.xz/from/this/mirror" PHP_ASC_URL="https://www.php.net/get/php-5.3.29.tar.xz.asc/from/this/mirror"
-ENV PHP_SHA256="8438c2f14ab8f3d6cd2495aa37de7b559e33b610f9ab264f0c61b531bf0c262d" PHP_MD5=""
-
-
-
-RUN set -eux; \
-        \
-        apk add --no-cache --virtual .fetch-deps gnupg; \
-        \
-        mkdir -p /usr/src; \
-        cd /usr/src; \
-        \
-        curl -fsSL -o php.tar.xz "$PHP_URL"; \
-        \
-        #!/bin/sh \
-        if [ -n "$PHP_SHA256" ]; then \
-                echo "$PHP_SHA256 *php.tar.xz" | sha256sum -c -; \
-        fi; \
-        if [ -n "$PHP_MD5" ]; then \
-                echo "$PHP_MD5 *php.tar.xz" | md5sum -c -; \
-        fi; \
-        # \
-        # if [ -n "$PHP_ASC_URL" ]; then \
-        #         curl -fsSL -o php.tar.xz.asc "$PHP_ASC_URL"; \
-        #         export GNUPGHOME="$(mktemp -d)"; \
-        #         for key in $GPG_KEYS; do \
-        #                 gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-        #         done; \
-        #         gpg --batch --verify php.tar.xz.asc php.tar.xz; \
-        #         gpgconf --kill all; \
-        #         rm -rf "$GNUPGHOME"; \
-        # fi; \
-        \
-        apk del --no-network .fetch-deps
-
-
-COPY docker-php-source /usr/local/bin/
-
-
 RUN set -eux \
-        && chmod +x /usr/local/bin/docker-php-source \
-        && apk add --no-cache --virtual .build-deps \
-                $PHPIZE_DEPS \
-                bzip2 \
-                bzip2-dev \
-                coreutils \
-                libedit-dev \
-                libxml2-dev \
-                linux-headers \
-                oniguruma-dev \
-                sqlite-dev \
-                curl-dev \
-        && export CFLAGS="$PHP_CFLAGS" \
-                CPPFLAGS="$PHP_CPPFLAGS" \
-                LDFLAGS="$PHP_LDFLAGS" \
-		&& OPENSSL_VERSION="1.0.1u" \
-		&& cd /tmp \
-		&& mkdir openssl \
-		&& curl -sL "https://www.openssl.org/source/old/1.0.1/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz \
-		&& tar -xf openssl.tar.gz -C openssl --strip-components=1 \
-		&& cd /tmp/openssl \
-		&& ./config \
-		&& make -j "$(nproc)" \
-		&& make install \
-        && cd /tmp \
-		&& rm -rf /tmp/* \
-        && docker-php-source extract \
-        && cd /usr/src/php \
-        && ./configure \
+    && yum install -y libtool autoconf213 bison libxml2-devel openssl-devel bzip2-devel \
+    curl-devel libssh2-devel freetype-devel libjpeg-turbo-devel libpng-devel \
+    libmcrypt-devel mysql mysql-devel\
+    libstdc++  \
+    && yum install -y epel-release \
+    && yum install -y libmcrypt-devel \
+    && export PHP_AUTOCONF=/usr/bin/autoconf-2.13 \
+    && cd opt \
+    && curl -SL "https://github.com/php/php-src/archive/php-5.3.29.tar.gz" -o php.tar.gz \
+    && tar -xf php.tar.gz -C /usr/src/php --strip-components=1 \
+    && rm -rf php.tar.gz \
+    && cd /usr/src/php \
+    && ./buildconf  --force \
+    && ./configure \
                 --with-config-file-path="$PHP_INI_DIR" \
                 --with-config-file-scan-dir="$PHP_INI_DIR/conf.d" \
                 --with-mhash \
@@ -146,10 +81,27 @@ RUN set -eux \
                 --enable-mysqlnd \
                 --with-curl \
                 --with-zlib \
-                --with-openssl-dir=/usr/local/ssl \
-                --with-openssl=/usr/local/ssl \
+                --with-openssl \
+                --with-freetype-dir=/usr/include/freetype2/freetype \
+                --with-jpeg-dir=/usr/include \
+                --with-png-dir=/usr/include \
+                --with-mysqli=mysqlnd \
+                --with-mysql=mysqlnd \
+                --with-gd \
+                --with-mcrypt \
+                --with-pdo-mysql \
+                --with-iconv-dir=/usr/include \
                 ${PHP_EXTRA_CONFIGURE_ARGS:-} \
-        && make -j "$(nproc)" \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd /opt \
+    && rm -rf /usr/src/php \
+    && yum clean all
+
+
+COPY docker-php-source /usr/local/bin/
+
+
         && find -type f -name '*.a' -delete \
         && make install \
         && find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true \
