@@ -107,7 +107,8 @@ COPY docker-php-source /usr/local/bin/
 
 
 RUN set -eux \
-        && apk add --no-cache --virtual .build-deps\
+        && chmod +x /usr/local/bin/docker-php-source \
+        && apk add --no-cache --virtual .build-deps \
                 $PHPIZE_DEPS \
                 bzip2 \
                 bzip2-dev \
@@ -183,7 +184,7 @@ EXPOSE 9000
 COPY so/* /usr/local/lib/php/extensions/no-debug-non-zts-20090626/
 #国内repo源，让本地构建速度更快。
 RUN set -eux \
-
+        && chmod +x /usr/local/bin/docker-php* \
 #安装tzdata安装包
         && apk add --no-cache tzdata \
 #设置时区
