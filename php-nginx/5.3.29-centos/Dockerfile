@@ -33,6 +33,13 @@ RUN set -x \
 	&& groupadd -g 102 nginx\
     && useradd -g 102 -u 102 -s /sbin/nologin nginx \
     # Install nginx
+    &&{ \
+        echo '[nginx]'; \
+        echo 'name=nginx repo'; \
+        echo 'baseurl=http://nginx.org/packages/centos/$releasever/$basearch/'; \
+        echo 'gpgcheck=0'; \
+        echo 'enabled=1'; \
+    } | tee /etc/yum.repos.d/nginx.repo \
     && yum install -y nginx \
     && yum clean all
 

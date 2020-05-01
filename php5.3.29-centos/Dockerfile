@@ -160,9 +160,6 @@ RUN set -eux \
             echo '[www]'; \
             echo 'listen = 9000'; \
     } | tee php-fpm.d/zz-docker.conf \
-    && yum remove -y libtool autoconf213 bison libxml2-devel openssl-devel bzip2-devel \
-    curl-devel libssh2-devel freetype-devel libjpeg-turbo-devel libpng-devel \
-     epel-release libmcrypt-devel php-pear gcc\
     && yum clean all \
     && rm -rf /usr/src/zend \
     && rm -rf /opt/ZendGuardLoader.tar.gz
