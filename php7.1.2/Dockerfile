@@ -6,7 +6,7 @@ MAINTAINER jacklin@shouyiren.net
 #定义环境变量
 ENV TIME_ZONE Asiz/Shanghai
 ENV RUN_ENV remote
-ENV LD_PRELOAD /usr/local/lib/preloadable_libiconv.so
+
 #国内repo源，让本地构建速度更快。
 RUN set -ex \
         && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
@@ -23,17 +23,6 @@ RUN set -ex \
                 libpng-dev \
                 libmcrypt-dev \
                 libstdc++ \
-                libtool \
-        && apk add --no-cache --virtual .libiconv-build-deps \
-                $PHPIZE_DEPS \
-        && curl -SL http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz | tar -xz -C . \
-        && cd libiconv-1.16 \
-        && ./configure \
-        && make \
-        && make install \
-        && libtool --finish /usr/local/lib \
-        && cd .. \
-        && rm -rf libiconv-1.16 \
 #添加php源码中的扩展，添加gd,mysqli,pdo-mysql,opcache,gettext,mcrypt等扩展
         && docker-php-ext-configure gd \
                 --with-freetype-dir=/usr/include/freetype2/freetype \
@@ -50,7 +39,6 @@ RUN set -ex \
 #swoole属于pecl扩展，需要使用pecl命令来安装，同时需要添加依赖的库
         && pecl install swoole-4.1.2 \
         && docker-php-ext-enable swoole \
-        && apk del .libiconv-build-deps \
         && apk del .phpize-deps
 
 CMD ["php-fpm"]
