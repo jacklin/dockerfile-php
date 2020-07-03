@@ -49,12 +49,16 @@ fi
 if [[ ! -n $WORKER_CONNECTIONES ]]; then
  	WORKER_CONNECTIONES="65534"
 fi
+if [[ ! -n $SEND_TIMEOUT ]]; then
+ 	SEND_TIMEOUT="30"
+fi
 # 修改nginx配置
 sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_CPU_AFFINITY>#$WORKER_CPU_AFFINITY#" \
 -e "s#<KEEPALIVE_TIMEOUT>#$KEEPALIVE_TIMEOUT#" \
 -e "s#<WORKER_RLIMIT_NOFILE>#$WORKER_RLIMIT_NOFILE#" \
 -e "s#<WORKER_CONNECTIONES>#$WORKER_CONNECTIONES#" \
+-e "s#<SEND_TIMEOUT>#$SEND_TIMEOUT#" \
 /opt/docker/nginx/nginx.conf > /etc/nginx/nginx.conf
 
 if [[ ! -n "${WEB_SERVER_PORT}" ]]; then
