@@ -1,5 +1,5 @@
 #使用国内网易镜像可以加快构建速度
-FROM alpine:latest
+FROM alpine:3.9.3
 
 MAINTAINER jacklin@shouyiren.net
 
@@ -36,7 +36,7 @@ RUN set -eux \
         && chmod 777 /var/www/html
 ENV LANG=C.UTF-8       
 RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
-    ALPINE_GLIBC_PACKAGE_VERSION="2.31-r0" && \
+    ALPINE_GLIBC_PACKAGE_VERSION="2.27-r0" && \
     ALPINE_GLIBC_BASE_PACKAGE_FILENAME="glibc-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_BIN_PACKAGE_FILENAME="glibc-bin-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
     ALPINE_GLIBC_I18N_PACKAGE_FILENAME="glibc-i18n-$ALPINE_GLIBC_PACKAGE_VERSION.apk" && \
@@ -112,7 +112,6 @@ ENV PHP_SHA256="8438c2f14ab8f3d6cd2495aa37de7b559e33b610f9ab264f0c61b531bf0c262d
 
 
 RUN set -eux; \
-        ln -sf /usr/glibc-compat/lib/ld-linux-x86-64.so /usr/glibc-compat/lib/ld-linux-x86-64.so.2 ; \
         \
         apk add --no-cache --virtual .fetch-deps gnupg; \
         \
