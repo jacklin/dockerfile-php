@@ -28,7 +28,7 @@ COPY conf/ /opt/docker/
 
 #国内repo源，让本地构建速度更快。
 RUN set -x \
-	&& curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo \
+	# && curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/repo/Centos-6.repo \
 	# 添加用户nginx 用于运行服务
 	&& groupadd -g 102 nginx\
     && useradd -g 102 -u 102 -s /sbin/nologin nginx \
@@ -39,8 +39,15 @@ RUN set -x \
         echo 'baseurl=http://nginx.org/packages/centos/$releasever/$basearch/'; \
         echo 'gpgcheck=0'; \
         echo 'enabled=1'; \
+        echo 'gpgkey=https://nginx.org/keys/nginx_signing.key'; \
+        echo 'module_hotfixes=true'; \
+        echo '[nginx-mainline]'; \
+        echo 'name=nginx mainline repo'; \
+        echo 'baseurl=http://nginx.org/packages/mainline/centos/$releasever/$basearch/'; \
+        echo 'gpgkey=https://nginx.org/keys/nginx_signing.key'; \
+        echo 'module_hotfixes=true'; \
     } | tee /etc/yum.repos.d/nginx.repo \
-    && yum install -y nginx \
+    && yum install -y nginx-1:1.18.0-1.el8.ngx.x86_64 \
     && yum clean all
 
 

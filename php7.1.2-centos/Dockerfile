@@ -1,5 +1,5 @@
 #使用国内网易镜像可以加快构建速度
-FROM centos:6.9
+FROM centos:8
 
 MAINTAINER jacklin@shouyiren.net
 
@@ -16,9 +16,10 @@ ENV PHP_EXTRA_CONFIGURE_ARGS \
 --enable-fpm \
 --disable-cgi \
 --disable-rpath \
---disable-ipv6 \
+--enable-ipv6 \
 --enable-fpm \
 --enable-zip \
+--enable-opcahce \
 --enable-soap \
 --enable-mbregex \
 --enable-sysvsem \
@@ -43,12 +44,11 @@ RUN set -eux \
     && mkdir -p /var/www/html \
     && chown www-data:www-data /var/www/html \
     && chmod 777 /var/www/html \
-    && curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo \
     && yum install -y libtool autoconf bison libxml2-devel openssl-devel bzip2-devel \
-    curl-devel libssh2-devel freetype-devel libjpeg-turbo-devel libpng-devel \
-    libmcrypt-devel mysql mysql-devel\
-    libstdc++  \
+    curl-devel freetype-devel libjpeg-turbo-devel libpng-devel \
+    mysql mysql-devel\
     gcc-c++ \
+    && yum -y install gcc automake make\
     && yum install -y epel-release \
     && yum install -y libmcrypt-devel \
     && export PHP_AUTOCONF=/usr/bin/autoconf \
@@ -86,47 +86,47 @@ RUN set -eux \
     && cd /opt \
     && rm -rf /usr/src/php \
     && php --version \
-    # && curl -SL "http://pear.php.net/go-pear.phar" -o go-pear.phar\
-    # && printf "\n" | php go-pear.phar \
+    && curl -SL "http://pear.php.net/go-pear.phar" -o go-pear.phar\
+    && printf "\n" | php go-pear.phar \
 #安装tzdata安装包
-    && yum install -y tzdata php-pear\
+    && yum install -y tzdata libssh2-devel \
 #设置时区
     && echo "${TIME_ZONE}" > /etc/timezone \
     && alias cp=cp \
     && ln -sf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime \
-    && printf "\n" | pecl install -f redis-4.1.1 \
+    && printf "\n" | /usr/local/bin/pecl install -f redis-4.1.1 \
     && ini="$PHP_INI_DIR/conf.d/docker-php-ext-redis.ini" \
     && { \
         echo 'extension=redis.so'; \
     } | tee $ini \
-#升级gcc至4.8
-    && { \
-        echo  '[testing-devtools-2-centos-$releasever]' ;\
-        echo 'name=testing 2 devtools for CentOS $releasever ' ;\
-        echo 'baseurl=http://people.centos.org/tru/devtools-2/$releasever/$basearch/RPMS' ; \
-        echo 'gpgcheck=0'; \
-     } | tee /etc/yum.repos.d/devtools-2.repo \
-    && yum install -y devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++\
-    && mv /usr/bin/gcc /usr/bin/gcc-4.4.7 \
-    && mv /usr/bin/g++ /usr/bin/g++-4.4.7 \
-    && mv /usr/bin/c++ /usr/bin/c++-4.4.7 \
-    && ln -s /opt/rh/devtoolset-2/root/usr/bin/gcc /usr/bin/gcc \
-    && ln -s /opt/rh/devtoolset-2/root/usr/bin/c++ /usr/bin/c++ \
-    && ln -s /opt/rh/devtoolset-2/root/usr/bin/g++ /usr/bin/g++ \
-    && gcc --version \
+# #升级gcc至4.8
+#     && { \
+#         echo  '[testing-devtools-2-centos-$releasever]' ;\
+#         echo 'name=testing 2 devtools for CentOS $releasever ' ;\
+#         echo 'baseurl=http://people.centos.org/tru/devtools-2/$releasever/$basearch/RPMS' ; \
+#         echo 'gpgcheck=0'; \
+#      } | tee /etc/yum.repos.d/devtools-2.repo \
+#     && yum install -y devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++\
+#     && mv /usr/bin/gcc /usr/bin/gcc-4.4.7 \
+#     && mv /usr/bin/g++ /usr/bin/g++-4.4.7 \
+#     && mv /usr/bin/c++ /usr/bin/c++-4.4.7 \
+#     && ln -s /opt/rh/devtoolset-2/root/usr/bin/gcc /usr/bin/gcc \
+#     && ln -s /opt/rh/devtoolset-2/root/usr/bin/c++ /usr/bin/c++ \
+#     && ln -s /opt/rh/devtoolset-2/root/usr/bin/g++ /usr/bin/g++ \
+#     && gcc --version \
 #swoole属于pecl扩展，需要使用pecl命令来安装，同时需要添加依赖的库
-    && printf "\n" | pecl install -f swoole-4.2.8 \
+    && printf "\n" | /usr/local/bin/pecl install -f swoole-4.2.8 \
     && ini="$PHP_INI_DIR/conf.d/docker-php-ext-swoole.ini" \
     && { \
         echo 'extension=swoole.so'; \
     } | tee $ini \
 #ssh2属于pecl扩展，需要使用pecl命令来安装，同时需要添加依赖的库
-    && printf "\n" | pecl install -f ssh2-1.2 \
+    && printf "\n" | /usr/local/bin/pecl install -f ssh2-1.2 \
     && ini="$PHP_INI_DIR/conf.d/docker-php-ext-ssh2.ini" \
     && { \
         echo 'extension=ssh2.so'; \
     } | tee $ini \
-    && printf "\n" | pecl install -f zendopcache-7.0.5 \
+    # && printf "\n" | /usr/local/bin/pecl install -f zendopcache-7.0.5 \
     && ini="$PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini" \
     && { \
         echo '[zend.opcache]'; \
@@ -157,6 +157,7 @@ RUN set -eux \
             echo '[www]'; \
             echo 'listen = 9000'; \
     } | tee php-fpm.d/zz-docker.conf \
+    && yum remove -y gcc automake make epel-release libtool autoconf bison mysql \
     && yum clean all \
     && rm -rf /usr/src/zend 
 
