@@ -35,7 +35,7 @@ ENV PHP_EXTRA_CONFIGURE_ARGS \
 --without-pear  \
 --disable-phar
 
-
+COPY tar/* /opt/
 RUN set -eux \
     && groupadd -g 82 www-data\
     && useradd -g 82 -u 82 www-data \
@@ -88,6 +88,25 @@ RUN set -eux \
     && php --version \
     && curl -SL "http://pear.php.net/go-pear.phar" -o go-pear.phar\
     && printf "\n" | php go-pear.phar \
+# install zookeeper-client-c
+    && cd /opt \
+    && tar -zxvf zookeeper-client-c.tar.gz \
+    && cd zookeeper-client-c \
+    && ./configure --without-cppunit --prefix=/usr/local/zookeeper-client-c --disable-dependency-tracking \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf zookeeper-client-c zookeeper-client-c.tar.gz \
+# install php-zookeeper
+    && cd /opt \
+    && tar zxvf php-zookeeper-1.0.0.tar.gz \
+    && cd php-zookeeper-1.0.0 \
+    && phpize \
+    && ./configure --with-libzookeeper-dir=/usr/local/zookeeper-client-c --with-php-config=/usr/local/bin/php-config \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf php-zookeeper-1.0.0 php-zookeeper-1.0.0.tar.gz \
 #安装tzdata安装包
     && yum install -y tzdata libssh2-devel \
 #设置时区
@@ -136,6 +155,11 @@ RUN set -eux \
         echo 'opcache.huge_code_pages=1'; \
         echo 'opcache.file_cache=/tmp '; \
     } | tee $ini \
+    && ini="$PHP_INI_DIR/conf.d/docker-php-ext-zookeeper.ini" \
+    && { \
+        echo 'extension=zookeeper.so'; \
+    } | tee $ini \
+
     && cd /usr/local/etc \
     && cp php-fpm.conf.default php-fpm.conf \
     && { \
