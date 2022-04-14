@@ -44,7 +44,17 @@ RUN set -eux \
     && mkdir -p /var/www/html \
     && chown www-data:www-data /var/www/html \
     && chmod 777 /var/www/html \
-    && yum install -y libtool autoconf bison libxml2-devel openssl-devel bzip2-devel \
+    && rename '.repo' '.repo.bak' /etc/yum.repos.d/*.repo \
+    && curl https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo -o /etc/yum.repos.d/Centos-vault-8.5.2111.repo \
+    && curl https://mirrors.aliyun.com/repo/epel-archive-8.repo -o /etc/yum.repos.d/epel-archive-8.repo \
+    && sed -i 's/mirrors.cloud.aliyuncs.com/mirrors.aliyun.com/g' /etc/yum.repos.d/Centos-vault-8.5.2111.repo \
+    && sed -i 's/mirrors.cloud.aliyuncs.com/mirrors.aliyun.com/g' /etc/yum.repos.d/epel-archive-8.repo \
+    && yum clean all \
+    && yum makecache \
+    && yum update -y \
+    && rename '.repo' '.repo.bak' /etc/yum.repos.d/CentOS-Linux-AppStream.repo \
+    && rename '.repo' '.repo.bak' /etc/yum.repos.d/CentOS-Linux-BaseOS.repo \
+    && yum install -y libtool autoconf bison libxml2-devel openssl-devel bzip2-devel git \
     curl-devel freetype-devel libjpeg-turbo-devel libpng-devel \
     mysql mysql-devel\
     gcc-c++ \
@@ -52,6 +62,15 @@ RUN set -eux \
     && yum install -y epel-release \
     && yum install -y libmcrypt-devel \
     && export PHP_AUTOCONF=/usr/bin/autoconf \
+    && cd /opt \
+    && yum install -y cyrus-sasl cyrus-sasl-devel cyrus-sasl-lib \
+    && git clone https://github.com/edenhill/librdkafka.git \
+    && cd librdkafka \
+    && ./configure \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf librdkafka \
     && cd /opt \
     && curl -SL "https://github.com/php/php-src/archive/php-${PHP_VERSION}.tar.gz" -o php.tar.gz \
     && mkdir /usr/src/php \
@@ -133,6 +152,12 @@ RUN set -eux \
 #     && ln -s /opt/rh/devtoolset-2/root/usr/bin/c++ /usr/bin/c++ \
 #     && ln -s /opt/rh/devtoolset-2/root/usr/bin/g++ /usr/bin/g++ \
 #     && gcc --version \
+#rdkafka属于pecl扩展，需要使用pecl命令来安装，同时需要添加依赖的库
+    && printf "\n" | /usr/local/bin/pecl install -f rdkafka \
+    && ini="$PHP_INI_DIR/conf.d/docker-php-ext-rdkafka.ini" \
+    && { \
+        echo 'extension=rdkafka.so'; \
+    } | tee $ini \
 #swoole属于pecl扩展，需要使用pecl命令来安装，同时需要添加依赖的库
     && printf "\n" | /usr/local/bin/pecl install -f swoole-4.2.8 \
     && ini="$PHP_INI_DIR/conf.d/docker-php-ext-swoole.ini" \

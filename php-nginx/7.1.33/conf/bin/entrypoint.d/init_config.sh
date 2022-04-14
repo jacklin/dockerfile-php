@@ -52,6 +52,9 @@ fi
 if [[ ! -n $SEND_TIMEOUT ]]; then
  	SEND_TIMEOUT="30"
 fi
+if [[ ! -n $SERVER_TOKENS ]]; then
+ 	SERVER_TOKENS="off"
+fi
 # 修改nginx配置
 sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_CPU_AFFINITY>#$WORKER_CPU_AFFINITY#" \
@@ -59,6 +62,7 @@ sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_RLIMIT_NOFILE>#$WORKER_RLIMIT_NOFILE#" \
 -e "s#<WORKER_CONNECTIONES>#$WORKER_CONNECTIONES#" \
 -e "s#<SEND_TIMEOUT>#$SEND_TIMEOUT#" \
+-e "s#<SERVER_TOKENS>#$SERVER_TOKENS#" \
 /opt/docker/nginx/nginx.conf > /etc/nginx/nginx.conf
 
 if [[ ! -n "${WEB_SERVER_PORT}" ]]; then
@@ -95,3 +99,6 @@ if [[ -d "/opt/docker/nginx/vhosts/other/" ]]; then
 	alias cp='cp -f'
 	cp /opt/docker/nginx/vhosts/other/*.conf /etc/nginx/conf.d/
 fi
+sed -i "s#default_server##g" /etc/nginx/conf.d/default.conf
+sed -i "7a \        server_name  localhost;" /etc/nginx/conf.d/default.conf
+
