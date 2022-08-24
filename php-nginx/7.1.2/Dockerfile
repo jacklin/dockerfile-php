@@ -23,7 +23,16 @@ ENV PM_MAX_CHILDREN=1000 \
 	DENY_SUFFIX_FILES='ini|cfg|dwt|lbi|sh|sql|txt|json|lock' \
 	WORKER_RLIMIT_NOFILE=65534 \
 	WORKER_CONNECTIONES=65534 \
-	SEND_TIMEOUT=30
+	SEND_TIMEOUT=30 \
+	GZIP=on \
+	GZIP_COMP_LEVEL=4 \
+	GZIP_MIN_LENGTH='1k' \
+	GZIP_BUFFERS='4 8k'\
+	GZIP_HTTP_VERSION='1.0' \
+	GZIP_TYPES='text/plain application/x-javascript text/css application/xml text/javasvript application/pdf image/x-ms-bmp' \
+	GZIP_DISABLE='"MSIC [1-6]\.(?!.*SV1)"' \
+	GZIP_VARY='on' \
+	GZIP_PROXIED='off'
 
 COPY conf/ /opt/docker/
 

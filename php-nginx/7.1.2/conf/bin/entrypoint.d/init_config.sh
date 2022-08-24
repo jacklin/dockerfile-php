@@ -52,6 +52,34 @@ fi
 if [[ ! -n $SEND_TIMEOUT ]]; then
  	SEND_TIMEOUT="30"
 fi
+if [[ ! -n $GZIP ]]; then
+ 	GZIP="on"
+fi
+if [[ ! -n $GZIP_COMP_LEVEL ]]; then
+ 	GZIP_COMP_LEVEL="4"
+fi
+if [[ ! -n $GZIP_MIN_LENGTH ]]; then
+ 	GZIP_MIN_LENGTH="1k"
+fi
+if [[ ! -n $GZIP_BUFFERS ]]; then
+ 	GZIP_BUFFERS="4 8k"
+fi
+if [[ ! -n $GZIP_HTTP_VERSION ]]; then
+ 	GZIP_HTTP_VERSION="1.0"
+fi
+if [[ ! -n $GZIP_TYPES ]]; then
+ 	GZIP_TYPES="text/plain application/x-javascript text/css application/xml text/javasvript application/pdf image/x-ms-bmp"
+fi
+if [[ ! -n $GZIP_DISABLE ]]; then
+ 	GZIP_DISABLE='"MSIC [1-6]\.(?!.*SV1)"'
+fi
+if [[ ! -n $GZIP_VARY ]]; then
+ 	GZIP_VARY="on"
+fi
+if [[ ! -n $GZIP_PROXIED ]]; then
+ 	GZIP_PROXIED="off"
+fi
+
 # 修改nginx配置
 sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_CPU_AFFINITY>#$WORKER_CPU_AFFINITY#" \
@@ -59,6 +87,15 @@ sed -e "s#<WORKER_PROCESSES>#$WORKER_PROCESSES#" \
 -e "s#<WORKER_RLIMIT_NOFILE>#$WORKER_RLIMIT_NOFILE#" \
 -e "s#<WORKER_CONNECTIONES>#$WORKER_CONNECTIONES#" \
 -e "s#<SEND_TIMEOUT>#$SEND_TIMEOUT#" \
+-e "s#<GZIP>#$GZIP#" \
+-e "s#<GZIP_COMP_LEVEL>#$GZIP_COMP_LEVEL#" \
+-e "s#<GZIP_MIN_LENGTH>#$GZIP_MIN_LENGTH#" \
+-e "s#<GZIP_BUFFERS>#$GZIP_BUFFERS#" \
+-e "s#<GZIP_HTTP_VERSION>#$GZIP_HTTP_VERSION#" \
+-e "s#<GZIP_TYPES>#$GZIP_TYPES#" \
+-e "s#<GZIP_DISABLE>#$GZIP_DISABLE#" \
+-e "s#<GZIP_VARY>#$GZIP_VARY#" \
+-e "s#<GZIP_PROXIED>#$GZIP_PROXIED#" \
 /opt/docker/nginx/nginx.conf > /etc/nginx/nginx.conf
 
 if [[ ! -n "${WEB_SERVER_PORT}" ]]; then

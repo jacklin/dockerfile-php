@@ -22,13 +22,23 @@ ENV PM_MAX_CHILDREN=1000 \
 	KEEPALIVE_TIMEOUT=0 \
 	DENY_SUFFIX_FILES='ini|cfg|dwt|lbi|sh|sql|txt|json|lock' \
 	WORKER_RLIMIT_NOFILE=65534\
-	WORKER_CONNECTIONES=65534
-
+	WORKER_CONNECTIONES=65534 \
+	GZIP=on \
+	GZIP_COMP_LEVEL=4 \
+	GZIP_MIN_LENGTH='1k' \
+	GZIP_BUFFERS='4 8k'\
+	GZIP_HTTP_VERSION='1.0' \
+	GZIP_TYPES='text/plain application/x-javascript text/css application/xml text/javasvript application/pdf image/x-ms-bmp' \
+	GZIP_DISABLE='"MSIC [1-6]\.(?!.*SV1)"' \
+	GZIP_VARY='on' \
+	GZIP_PROXIED='off'
 COPY conf/ /opt/docker/
 
 #国内repo源，让本地构建速度更快。
 RUN set -x \
 	# && curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/repo/Centos-6.repo \
+	&& sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+	&& sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* \
 	# 添加用户nginx 用于运行服务
 	&& groupadd -g 102 nginx\
     && useradd -g 102 -u 102 -s /sbin/nologin nginx \
