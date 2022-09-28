@@ -64,16 +64,16 @@ fi
 if [[ ! -n $GZIP_MIN_LENGTH ]]; then
  	GZIP_MIN_LENGTH="1k"
 fi
-if [[ ! -n $GZIP_BUFFERS ]]; then
+if [[ ! -n "${GZIP_BUFFERS}" ]]; then
  	GZIP_BUFFERS="4 8k"
 fi
 if [[ ! -n $GZIP_HTTP_VERSION ]]; then
  	GZIP_HTTP_VERSION="1.0"
 fi
-if [[ ! -n $GZIP_TYPES ]]; then
+if [[ ! -n "${GZIP_TYPES}" ]]; then
  	GZIP_TYPES="text/plain application/x-javascript text/css application/xml text/javasvript application/pdf image/x-ms-bmp"
 fi
-if [[ ! -n $GZIP_DISABLE ]]; then
+if [[ ! -n "${GZIP_DISABLE}" ]]; then
  	GZIP_DISABLE='"MSIC [1-6]\.(?!.*SV1)"'
 fi
 if [[ ! -n $GZIP_VARY ]]; then
